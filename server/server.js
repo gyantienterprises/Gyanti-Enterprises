@@ -1,8 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,14 +14,14 @@ app.use(express.json());
 // Initialize Neon Connection Pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 });
 
 // --- ADMIN SECURITY MIDDLEWARE ---
 // This blocks unauthorized requests from reading or deleting your Neon data
 const authenticateAdmin = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Extract token from "Bearer <token>"
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
 
   if (!token) {
     return res.status(401).json({ error: "Access denied. No token provided." });
@@ -36,11 +36,10 @@ const authenticateAdmin = (req, res, next) => {
   }
 };
 
-
 // --- PUBLIC ENDPOINTS ---
 
 // Lead Submission Endpoint
-app.post('/api/leads', async (req, res) => {
+app.post("/api/leads", async (req, res) => {
   const { name, contact, monthlyBill, kwNeeded, moneySaved } = req.body;
 
   if (!name || !contact || !monthlyBill) {
@@ -48,10 +47,13 @@ app.post('/api/leads', async (req, res) => {
   }
 
   try {
-    const checkUser = await pool.query('SELECT id FROM solar_leads WHERE contact = $1', [contact]);
+    const checkUser = await pool.query(
+      "SELECT id FROM solar_leads WHERE contact = $1",
+      [contact],
+    );
     const isExisting = checkUser.rows.length > 0;
 
-    const numericSavings = parseInt(String(moneySaved).replace(/,/g, ''));
+    const numericSavings = parseInt(String(moneySaved).replace(/,/g, ""));
     let result;
 
     if (isExisting) {
@@ -61,12 +63,19 @@ app.post('/api/leads', async (req, res) => {
         WHERE contact = $5
         RETURNING *;
       `;
-      result = await pool.query(updateQuery, [name, parseInt(monthlyBill), parseFloat(kwNeeded), numericSavings, contact]);
-      
-      return res.status(200).json({ 
-        success: true, 
-        message: "We found an existing profile under this number. Your consultation metrics have been successfully updated!",
-        lead: result.rows[0] 
+      result = await pool.query(updateQuery, [
+        name,
+        parseInt(monthlyBill),
+        parseFloat(kwNeeded),
+        numericSavings,
+        contact,
+      ]);
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "We found an existing profile under this number. Your consultation metrics have been successfully updated!",
+        lead: result.rows[0],
       });
     } else {
       const insertQuery = `
@@ -74,26 +83,30 @@ app.post('/api/leads', async (req, res) => {
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *;
       `;
-      result = await pool.query(insertQuery, [name, contact, parseInt(monthlyBill), parseFloat(kwNeeded), numericSavings]);
-      
-      return res.status(201).json({ 
-        success: true, 
+      result = await pool.query(insertQuery, [
+        name,
+        contact,
+        parseInt(monthlyBill),
+        parseFloat(kwNeeded),
+        numericSavings,
+      ]);
+
+      return res.status(201).json({
+        success: true,
         message: "Your consultation has been successfully booked!",
-        lead: result.rows[0] 
+        lead: result.rows[0],
       });
     }
-
   } catch (error) {
     console.error("Database Handling Error Details:", error);
     return res.status(500).json({ error: "Internal server database error." });
   }
 });
 
-
 // --- NEW ADMIN SECURE ENDPOINTS ---
 
 // 1. Admin Login Endpoint
-app.post('/api/admin/login', (req, res) => {
+app.post("/api/admin/login", (req, res) => {
   const { password } = req.body;
 
   if (!password) {
@@ -103,7 +116,9 @@ app.post('/api/admin/login', (req, res) => {
   // Verifies password against server-side environment variables securely
   if (password === process.env.ADMIN_PASSWORD) {
     // Generate a secure token valid for 2 hours
-    const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '2h' });
+    const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, {
+      expiresIn: "2h",
+    });
     return res.status(200).json({ success: true, token });
   }
 
@@ -111,10 +126,12 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 // 2. Fetch All Leads (Protected)
-app.get('/api/admin/leads', authenticateAdmin, async (req, res) => {
+app.get("/api/admin/leads", authenticateAdmin, async (req, res) => {
   try {
     // Fetch data out of your Neon database sorted by newest first
-    const result = await pool.query('SELECT id, name, contact as phone, monthly_bill, kw_needed, money_saved, created_at FROM solar_leads ORDER BY created_at DESC');
+    const result = await pool.query(
+      "SELECT id, name, contact as phone, monthly_bill, kw_needed, money_saved, created_at FROM solar_leads ORDER BY created_at DESC",
+    );
     return res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching admin data:", error);
@@ -123,23 +140,56 @@ app.get('/api/admin/leads', authenticateAdmin, async (req, res) => {
 });
 
 // 3. Delete an Entry (Protected)
-app.delete('/api/admin/leads/:id', authenticateAdmin, async (req, res) => {
+app.delete("/api/admin/leads/:id", authenticateAdmin, async (req, res) => {
   const { id } = req.params;
   try {
-    const deleteQuery = 'DELETE FROM solar_leads WHERE id = $1 RETURNING *;';
+    const deleteQuery = "DELETE FROM solar_leads WHERE id = $1 RETURNING *;";
     const result = await pool.query(deleteQuery, [id]);
 
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Record not found." });
     }
 
-    return res.status(200).json({ success: true, message: "Lead successfully removed." });
+    return res
+      .status(200)
+      .json({ success: true, message: "Lead successfully removed." });
   } catch (error) {
     console.error("Error deleting entry:", error);
     return res.status(500).json({ error: "Failed to delete database record." });
   }
 });
 
+app.get("/api/test", async (req, res) => {
+  try {
+    // Explicitly ordering and ensuring created_at is delivered
+    const result = await pool.query(
+      "SELECT id, name, contact, monthly_bill, kw_needed, money_saved, created_at FROM solar_leads ORDER BY created_at DESC",
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Add this to your Express backend for testing mobile deletion without tokens
+app.delete("/api/test/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "DELETE FROM solar_leads WHERE id = $1 RETURNING *;",
+      [id],
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Record not found." });
+    }
+    return res.status(200).json({ success: true, message: "Lead removed." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Database error." });
+  }
+});
 
 // Start Server
 app.listen(PORT, () => {
