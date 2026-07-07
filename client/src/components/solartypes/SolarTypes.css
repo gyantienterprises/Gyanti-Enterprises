@@ -1,0 +1,303 @@
+.solar-slider-section {
+  --color-bg-dark: #07070a;
+  --color-card-dark: #0b0b0f;
+  --color-surface-light: #16161f;
+  --color-text-main: #ffffff;
+  --color-text-muted: #94a3b8;
+  --color-accent-sun: #ffb000;
+  --color-accent-orange: #ff7a18;
+  --color-border: #1e1e2f;
+
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-main);
+  padding: 60px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+/* SECTION HEADER */
+.solar-slider-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.main-section-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #ffffff 40%, #ffb000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.main-section-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* CAROUSEL TRACK STAGE */
+.slider-stage-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  height: 450px; /* Maintains fixed height for absolute cards stack */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CAROUSEL MECHANISM (THE 3D CARDS) */
+.solar-big-card {
+  position: absolute;
+  background-color: var(--color-card-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  width: 65%; /* Center card takes major real estate */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
+              opacity 0.5s ease, 
+              filter 0.5s ease,
+              border-color 0.4s ease;
+}
+
+/* CARD STATES (CENTER vs CORNERS) */
+.solar-big-card.card-active {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  z-index: 3;
+  filter: blur(0px);
+  pointer-events: auto;
+}
+
+.solar-big-card.card-prev {
+  transform: translateX(-40%) scale(0.82); /* Scaled down on left side */
+  opacity: 0.35;
+  z-index: 1;
+  filter: blur(2px);
+  cursor: pointer;
+}
+
+.solar-big-card.card-next {
+  transform: translateX(40%) scale(0.82); /* Scaled down on right side */
+  opacity: 0.35;
+  z-index: 1;
+  filter: blur(2px);
+  cursor: pointer;
+}
+
+.solar-big-card:not(.card-active):hover {
+  opacity: 0.6;
+  border-color: var(--color-accent-sun);
+}
+
+/* LEFT IMAGE AREA */
+.card-left-panel {
+  flex: 1;
+  height: 100%;
+  background: radial-gradient(circle at center, #141424 0%, var(--color-card-dark) 75%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+  border-right: 1px solid var(--color-border);
+}
+
+.solar-illustrator-img {
+  max-width: 90%;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+/* RIGHT INFO AREA */
+.card-right-panel {
+  flex: 1.2;
+  padding: 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  transition: opacity 0.3s ease;
+}
+
+/* Hide text content cleanly when cards are shifted to the corners */
+.solar-big-card:not(.card-active) .card-right-panel {
+  opacity: 0.1; 
+}
+
+.system-tag {
+  color: var(--color-accent-sun);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.system-heading {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 14px 0;
+  color: #ffffff;
+}
+
+.system-desc-short {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.system-desc-short strong {
+  color: var(--color-accent-sun);
+}
+
+/* POINTS BULLETS */
+.bullet-points-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.bullet-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+}
+
+.bullet-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--color-accent-orange);
+  flex-shrink: 0;
+}
+
+/* BOTTOM VERDICT */
+.premium-verdict-tag {
+  background: var(--color-surface-light);
+  border-left: 3px solid var(--color-accent-sun);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+}
+
+.premium-verdict-tag strong {
+  color: var(--color-accent-sun);
+}
+
+/* PREMIUM ACTION NAVIGATION ARROWS */
+.nav-arrow-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(11, 11, 15, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.25s ease;
+}
+
+.nav-arrow-btn:hover {
+  color: #ffffff;
+  border-color: var(--color-accent-sun);
+  box-shadow: 0 0 20px rgba(255, 176, 0, 0.25);
+}
+
+.nav-arrow-btn.left { left: 10%; }
+.nav-arrow-btn.right { right: 10%; }
+
+/* SLIDER CONTROLS INDICATORS */
+.slider-dots-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #232335;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background: var(--color-accent-sun);
+  width: 20px;
+  border-radius: 4px;
+}
+
+/* ===================== RESPONSIVE CONFIGURATIONS ===================== */
+
+@media (max-width: 1024px) {
+  .solar-big-card { width: 75%; }
+  .nav-arrow-btn.left { left: 4%; }
+  .nav-arrow-btn.right { right: 4%; }
+}
+
+@media (max-width: 768px) {
+  .slider-stage-wrapper {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .solar-big-card {
+    position: relative;
+    width: 100%;
+    flex-direction: column;
+    transform: none !important;
+    opacity: 0;
+    display: none;
+    filter: none !important;
+  }
+
+  /* Fallback on smaller devices: Show active center view without complex overlaps */
+  .solar-big-card.card-active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .card-left-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 20px;
+  }
+
+  .solar-illustrator-img { max-height: 180px; }
+  .card-right-panel { width: 100%; padding: 24px 20px; }
+  .main-section-title { font-size: 1.8rem; }
+  .system-heading { font-size: 1.4rem; }
+
+  .nav-arrow-btn {
+    top: 110px;
+    transform: none;
+  }
+  .nav-arrow-btn.left { left: 10px; }
+  .nav-arrow-btn.right { right: 10px; }
+}

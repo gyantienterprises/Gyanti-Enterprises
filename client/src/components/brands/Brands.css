@@ -1,0 +1,330 @@
+/* Custom properties injected directly into the component scope */
+.brands-container {
+  --color-bg-main: #f7f8fb;
+  --color-bg-secondary: #ffffff;
+  --color-surface: #eef1f6;
+  --color-brand-dark: #0b0b0f;
+  --color-brand-darker: #07070a;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-accent-primary: #ffb000;
+  --color-accent-secondary: #ff7a18;
+
+  background-color: var(--color-bg-main);
+  padding: 50px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.brands-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.brands-title {
+  color: var(--color-text-primary);
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.brands-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin: 0 0 32px 0;
+}
+
+/* FILTER TABS — Modern light theme pills */
+.brands-filter-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.filter-tab {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-surface);
+  color: var(--color-text-secondary);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.02);
+}
+
+.filter-tab:hover {
+  border-color: var(--color-accent-secondary);
+  color: var(--color-text-primary);
+}
+
+.filter-tab.active {
+  background: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-primary); /* Dark text for great contrast on amber */
+  font-weight: 700;
+}
+
+/* PC Layout: 4 columns */
+.brands-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.brand-card {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-surface);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 130px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03);
+}
+
+.brand-logo-view {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.brand-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* CATEGORY BADGE — Highly visible light pill */
+.brand-category-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--color-surface);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  color: var(--color-text-secondary);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+/* OVERLAY WRAPPER — Crisp, clean light overlay */
+.brand-hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  box-sizing: border-box;
+
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* OVERLAY TAG — Pop of theme colors */
+.overlay-tag {
+  background: rgba(255, 176, 0, 0.12); /* Subtle amber background tint */
+  border: 1px solid var(--color-accent-primary);
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* OVERLAY DETAIL — Premium light gray card style */
+.overlay-detail {
+  background: var(--color-surface);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.brand-fallback-text {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+/* HOVER: pointer devices */
+@media (hover: hover) and (pointer: fine) {
+  .brand-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent-secondary);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  .brand-card:hover .brand-logo-view {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  .brand-card:hover .brand-hover-overlay {
+    transform: translateY(0);
+  }
+}
+
+/* TOUCH: driven by mobile click interactions */
+@media (hover: none), (pointer: coarse) {
+  .brand-card.is-active {
+    border-color: var(--color-accent-secondary);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  .brand-card.is-active .brand-logo-view {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  .brand-card.is-active .brand-hover-overlay {
+    transform: translateY(0);
+  }
+}
+
+/* ===================== RESPONSIVE BREAKPOINTS ===================== */
+
+@media (max-width: 900px) {
+  .brands-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brands-container {
+    padding: 36px 14px;
+  }
+
+  .brands-title {
+    font-size: 1.35rem;
+  }
+
+  .brands-subtitle {
+    font-size: 0.82rem;
+    margin-bottom: 22px;
+  }
+
+  .brands-filter-tabs {
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .filter-tab {
+    padding: 5px 12px;
+    font-size: 0.72rem;
+  }
+
+  .brands-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .brand-card {
+    height: 84px;
+    border-radius: 8px;
+  }
+
+  .brand-logo-view {
+    padding: 8px;
+  }
+
+  .brand-category-badge {
+    font-size: 0.48rem;
+    padding: 1px 6px;
+    top: 5px;
+    left: 5px;
+  }
+
+  .overlay-tag {
+    font-size: 0.58rem;
+    padding: 2px 7px;
+  }
+
+  .overlay-detail {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+  }
+
+  .brand-hover-overlay {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 390px) {
+  .brands-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .brand-card {
+    height: 96px;
+  }
+
+  .overlay-tag {
+    font-size: 0.64rem;
+  }
+
+  .overlay-detail {
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .brands-container {
+    padding: 28px 10px;
+  }
+
+  .brands-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .brand-card {
+    height: 88px;
+  }
+
+  .filter-tab {
+    padding: 4px 10px;
+    font-size: 0.68rem;
+  }
+}
