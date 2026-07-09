@@ -23,6 +23,27 @@ const pool = new Pool({
 // --- IN-MEMORY REALTIME WEB DASHBOARD CLIENTS ---
 let adminClients = [];
 
+// --- DEPLOYMENT HEALTH CHECK ENDPOINT ---
+// Used by Render to check service viability and keep tracking live health metrics
+app.get("/health", async (req, res) => {
+  try {
+    // Quick test to ensure the database can execute a minimal query
+    await pool.query("SELECT 1");
+    return res.status(200).json({
+      status: "healthy",
+      database: "connected",
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("Health check database failure:", error.message);
+    return res.status(503).json({
+      status: "unhealthy",
+      database: "disconnected",
+      error: error.message
+    });
+  }
+});
+
 // --- PUSH NOTIFICATION HELPERS ---
 const sendPushNotification = async (expoPushToken, title, body, data = {}) => {
   const message = {
