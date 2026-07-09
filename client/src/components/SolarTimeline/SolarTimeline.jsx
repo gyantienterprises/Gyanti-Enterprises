@@ -51,7 +51,7 @@ export default function SolarTimeline() {
     <section className="solar-timeline-section">
       <div className="timeline-header">
         <h2 className="timeline-main-title">Our Seamless Process</h2>
-        <p className="timeline-subtitle">Go solar in five simple, hassle-free steps managed entirely by our experts.</p>
+        <p className="timeline-subtitle">हमारे विशेषज्ञों की देखरेख में, बस 5 आसान स्टेप्स में घर लाएं सोलर।</p>
       </div>
 
       <div className="timeline-container">

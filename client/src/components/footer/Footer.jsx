@@ -103,9 +103,9 @@ const Footer = () => {
               >
                 <FaFacebookF />
               </a>
-              <a href="#linkedin" aria-label="LinkedIn">
+              {/* <a href="#linkedin" aria-label="LinkedIn">
                 <FaLinkedinIn />
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
