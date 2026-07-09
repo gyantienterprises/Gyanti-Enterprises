@@ -38,7 +38,7 @@ export default function PartnerBrands() {
   };
 
   return (
-    <section className="brands-container">
+    <section id='brands' className="brands-container">
       <div className="brands-content">
         <h2 className="brands-title">Our Partnered Brands</h2>
         <p className="brands-subtitle">Trusted names powering our solar & backup solutions</p>

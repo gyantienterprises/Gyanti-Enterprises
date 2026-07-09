@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./SolarCalculator.css";
-import { CheckCircle2, X, AlertTriangle } from "lucide-react"; 
+import { CheckCircle2, X, AlertTriangle } from "lucide-react";
 
 const SolarCalculator = () => {
   const [formData, setFormData] = useState({
@@ -10,17 +10,21 @@ const SolarCalculator = () => {
   });
 
   const [results, setResults] = useState(null);
-  
+
   // Modal & Error States
   const [showModal, setShowModal] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
+  const [billErrorMessage, setBillErrorMessage] = useState(""); // Track bill specific validation
   const [successMessage, setSuccessMessage] = useState("");
+
+  const backend = import.meta.env.VITE_BACKEND;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Clear warnings as the user types
     if (name === "contact") setWarningMessage("");
+    if (name === "monthlyBill") setBillErrorMessage("");
 
     setFormData((prev) => ({
       ...prev,
@@ -37,16 +41,42 @@ const SolarCalculator = () => {
 
   const calculateSolarRequirements = (e) => {
     e.preventDefault();
-    
-    const bill = parseFloat(formData.monthlyBill);
-    if (isNaN(bill) || bill <= 0) return;
 
-    const estimatedMonthlyUnits = bill / 7;
-    const requiredKw = estimatedMonthlyUnits / 120;
-    const annualSavings = estimatedMonthlyUnits * 8 * 12;
+    const bill = parseFloat(formData.monthlyBill);
+    if (isNaN(bill)) return;
+
+    // 1. Minimum bill restriction
+    if (bill < 1500) {
+      setBillErrorMessage(
+        "Minimum monthly bill requirement for solar setup is ₹1,500.",
+      );
+      setResults(null);
+      return;
+    }
+
+    // 2. Market Standard Coefficients
+    const BLENDED_TARIFF = 7; // Average cost per unit in ₹
+    const DAILY_GEN_PER_KW = 4; // Real-world adjusted generation (Accounting for dust/weather losses)
+    const DAYS_IN_MONTH = 30;
+
+    // Step A: Find monthly unit consumption
+    const estimatedMonthlyUnits = bill / BLENDED_TARIFF;
+
+    // Step B: Calculate monthly gen per 1kW (4 units * 30 days = 120 units)
+    const monthlyGenPerKw = DAILY_GEN_PER_KW * DAYS_IN_MONTH;
+
+    // Step C: Find raw kW capacity needed, and round UP to nearest whole integer
+    const requiredKw = Math.ceil(estimatedMonthlyUnits / monthlyGenPerKw);
+
+    // Step D: Calculate potential vs max allowable financial savings
+    const potentialAnnualSavings =
+      requiredKw * DAILY_GEN_PER_KW * DAYS_IN_MONTH * 12 * BLENDED_TARIFF;
+    const maxAnnualBill = bill * 12; // Cap savings to what they actually spend
+
+    const annualSavings = Math.min(potentialAnnualSavings, maxAnnualBill);
 
     setResults({
-      kwNeeded: requiredKw.toFixed(1),
+      kwNeeded: requiredKw,
       moneySaved: Math.round(annualSavings).toLocaleString("en-IN"),
     });
   };
@@ -54,7 +84,7 @@ const SolarCalculator = () => {
   // Connects directly to your updated Express + Neon Find-or-Update API
   const handleContactSubmit = async () => {
     setWarningMessage("");
-    setSuccessMessage(""); 
+    setSuccessMessage("");
 
     const payload = {
       name: formData.name,
@@ -65,7 +95,7 @@ const SolarCalculator = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/leads", {
+      const response = await fetch(backend, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,31 +110,32 @@ const SolarCalculator = () => {
         return;
       }
 
-      // Capture the dynamic message generated from your backend environment
       setSuccessMessage(data.message);
       setShowModal(true);
-
     } catch (error) {
       console.error("Connection Error:", error);
-      alert("Unable to reach the server. Make sure your backend server is running.");
+      alert(
+        "Unable to reach the server. Make sure your backend server is running.",
+      );
     }
   };
 
   const closeModal = () => {
     setShowModal(false);
-    // Reset fields smoothly
     setFormData({ name: "", contact: "", monthlyBill: "" });
     setResults(null);
     setSuccessMessage("");
   };
 
   return (
-    <section className="calculator-section">
+    <section id="solar-calculator" className="calculator-section">
       <div className="calculator-container">
-        
         {/* LEFT SIDE: Calculator Card */}
         <div className="calculator-card">
-          <form onSubmit={calculateSolarRequirements} className="calculator-form">
+          <form
+            onSubmit={calculateSolarRequirements}
+            className="calculator-form"
+          >
             <div className="form-group">
               <label htmlFor="name">Full Name</label>
               <input
@@ -145,11 +176,16 @@ const SolarCalculator = () => {
                 id="monthlyBill"
                 name="monthlyBill"
                 required
-                min="1"
                 placeholder="e.g. 3000"
                 value={formData.monthlyBill}
                 onChange={handleInputChange}
+                className={billErrorMessage ? "input-error" : ""}
               />
+              {billErrorMessage && (
+                <p className="error-text">
+                  <AlertTriangle size={14} /> {billErrorMessage}
+                </p>
+              )}
             </div>
 
             <button type="submit" className="calculate-btn">
@@ -163,7 +199,8 @@ const SolarCalculator = () => {
           <span className="calc-badge">Instant Estimate</span>
           <h2 className="calc-heading">Calculate Your Solar Potential</h2>
           <p className="calc-subtext">
-            Find out the exact solar plant capacity your home needs and see how much money you can stop throwing away on electricity bills.
+            Find out the exact solar plant capacity your home needs and see how
+            much money you can stop throwing away on electricity bills.
           </p>
 
           {results && (
@@ -180,8 +217,8 @@ const SolarCalculator = () => {
                 </div>
               </div>
 
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="contact-expert-btn"
                 onClick={handleContactSubmit}
               >
@@ -195,7 +232,10 @@ const SolarCalculator = () => {
       {/* PROFESSIONAL SUCCESS MODAL OVERLAY */}
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-card animate-scale-up" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-card animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button className="modal-close-btn" onClick={closeModal}>
               <X size={20} />
             </button>
@@ -205,10 +245,15 @@ const SolarCalculator = () => {
               </div>
               <h3 className="modal-title">Consultation Updated!</h3>
               <p className="modal-message">
-                {successMessage || `Thank you ${formData.name}. Your customized solar layout blueprint has been saved successfully.`}
+                {successMessage ||
+                  `Thank you ${formData.name}. Your customized solar layout blueprint has been saved successfully.`}
               </p>
               <div className="modal-info-box">
-                <p>Our senior grid consultant will contact you at <strong>+91 {formData.contact}</strong> within 24 hours to schedule your physical site audit.</p>
+                <p>
+                  Our senior grid consultant will contact you at{" "}
+                  <strong>+91 {formData.contact}</strong> within 24 hours to
+                  schedule your physical site audit.
+                </p>
               </div>
               <button className="modal-action-btn" onClick={closeModal}>
                 Back to Calculator

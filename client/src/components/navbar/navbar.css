@@ -1,0 +1,211 @@
+/* ==========================================================================
+   Theme variables
+   NOTE: brand-dark / accent-primary / accent-secondary were custom Tailwind
+   theme colors. I don't have your tailwind.config values, so plug in your
+   exact hex codes here and the rest of the file will match 1:1.
+   ========================================================================== */
+:root {
+  /* replace these with your exact tailwind.config values */
+  --brand-dark: #0a1120;
+  --brand-dark-rgb: 10, 17, 32; /* rgb() equivalent of --brand-dark, used for opacity */
+  --accent-primary: #facc15;
+  --accent-secondary: #eab308;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.navbar--hidden {
+  transform: translateY(-100%);
+}
+
+.navbar--scrolled {
+  background-color: rgba(var(--brand-dark-rgb), 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.navbar--top {
+  background-color: rgba(var(--brand-dark-rgb), 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ==========================================================================
+   Inner wrapper
+   ========================================================================== */
+.navbar__inner {
+  max-width: 80rem; /* max-w-7xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem; /* px-5 */
+  padding-right: 1.25rem;
+  height: 4.5rem; /* h-18 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (min-width: 768px) {
+  .navbar__inner {
+    padding-left: 2rem; /* md:px-8 */
+    padding-right: 2rem;
+  }
+}
+
+/* ==========================================================================
+   Logo
+   ========================================================================== */
+.navbar__logo-link {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__logo {
+  height: 5rem; /* h-20 */
+  width: auto;
+  object-fit: contain;
+}
+
+/* ==========================================================================
+   Desktop navigation
+   ========================================================================== */
+.navbar__desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 2.5rem; /* gap-10 */
+}
+
+@media (min-width: 768px) {
+  .navbar__desktop-nav {
+    display: flex;
+  }
+}
+
+.navbar__link {
+  color: rgb(255 255 255 / 0.7);
+  font-weight: 500;
+  transition: color 0.15s ease;
+  text-decoration: none;
+}
+
+.navbar__link:hover {
+  color: var(--accent-primary);
+}
+
+.navbar__cta {
+  background-color: var(--accent-primary);
+  color: #000;
+  padding: 0.75rem 1.5rem; /* py-3 px-6 */
+  border-radius: 0.75rem; /* rounded-xl */
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+  text-decoration: none;
+}
+
+.navbar__cta:hover {
+  background-color: var(--accent-secondary);
+}
+
+/* ==========================================================================
+   Mobile toggle button
+   ========================================================================== */
+.navbar__mobile-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem; /* gap-1.5 */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .navbar__mobile-toggle {
+    display: none;
+  }
+}
+
+.navbar__bar {
+  width: 1.5rem; /* w-6 */
+  height: 0.125rem; /* h-0.5 */
+  background-color: #fff;
+  transition: all 0.15s ease;
+}
+
+.navbar__bar--top-open {
+  transform: rotate(45deg) translateY(0.5rem);
+}
+
+.navbar__bar--mid-open {
+  opacity: 0;
+}
+
+.navbar__bar--bottom-open {
+  transform: rotate(-45deg) translateY(-0.5rem);
+}
+
+/* ==========================================================================
+   Mobile menu
+   ========================================================================== */
+.navbar__mobile-menu {
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  max-height: 0;
+}
+
+.navbar__mobile-menu--open {
+  max-height: 24rem; /* max-h-96 */
+}
+
+@media (min-width: 768px) {
+  .navbar__mobile-menu {
+    display: none;
+  }
+}
+
+.navbar__mobile-menu-inner {
+  background-color: var(--brand-dark);
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  padding: 1.5rem; /* px-6 py-6 */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* gap-5 */
+}
+
+.navbar__mobile-link {
+  color: rgb(255 255 255 / 0.7);
+  transition: color 0.15s ease;
+  text-decoration: none;
+}
+
+.navbar__mobile-link:hover {
+  color: var(--accent-primary);
+}
+
+.navbar__mobile-cta {
+  background-color: var(--accent-primary);
+  color: #000;
+  text-align: center;
+  padding: 0.75rem 0; /* py-3 */
+  border-radius: 0.75rem; /* rounded-xl */
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+  text-decoration: none;
+}
+
+.navbar__mobile-cta:hover {
+  background-color: var(--accent-secondary);
+}

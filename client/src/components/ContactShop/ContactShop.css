@@ -1,0 +1,229 @@
+/* Color Palette Mapping for Light Theme Zone */
+:root {
+  --color-bg-main: #f7f8fb;
+  --color-bg-secondary: #ffffff;
+  --color-surface: #eef1f6;
+
+  /* Text colors */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+
+  /* Accents */
+  --color-accent-primary: #ffb000;
+  --color-accent-secondary: #ff7a18;
+  --color-whatsapp-green: #25d366;
+}
+
+/* Base Container Settings */
+.shop-contact-section {
+  background-color: var(--color-bg-main);
+  color: var(--color-text-primary);
+  padding: 32px 16px;
+  font-family: system-ui, -apple-system, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.contact-header {
+  text-align: center;
+  margin-bottom: 24px;
+  max-width: 600px;
+}
+
+.contact-main-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 6px 0;
+}
+
+.contact-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Structural Layout Container */
+.contact-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px; /* Slim view on phones */
+}
+
+/* Google Map Wrapper Styles */
+.map-card-wrapper {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-surface);
+  border-radius: 12px;
+  height: 180px; /* Shorter card form factor on mobile */
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.embedded-google-map {
+  border: 0;
+  /* Light theme map styling (standard colorful array maps display normally here) */
+}
+
+/* Info Elements Structure */
+.info-details-card {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-surface);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.info-inner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.info-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.info-icon-wrapper.accent-primary {
+  background: radial-gradient(circle at 35% 35%, #ffd473, var(--color-accent-primary));
+  color: #fff;
+}
+
+.info-icon-wrapper.accent-secondary {
+  background: radial-gradient(circle at 35% 35%, #ffaa66, var(--color-accent-secondary));
+  color: #fff;
+}
+
+.info-text-block h4 {
+  margin: 0 0 2px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.info-text-block p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+/* Action Trigger Buttons */
+.contact-actions-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+.btn-action:active {
+  transform: scale(0.98);
+}
+
+.btn-whatsapp {
+  background-color: var(--color-whatsapp-green);
+  color: #ffffff;
+}
+
+.btn-sms {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* ==========================================================================
+   DESKTOP VIEW REBALANCING (60vh Height Limits Enforced)
+   ========================================================================== */
+@media (min-width: 1024px) {
+  .shop-contact-section {
+    padding: 40px 24px;
+    height: 60vh; /* Keeps entire section bound within explicit layout limits */
+    min-height: 420px; 
+    max-height: 520px;
+    justify-content: center;
+  }
+
+  .contact-header {
+    margin-bottom: 24px;
+  }
+
+  .contact-main-title {
+    font-size: 2.2rem;
+  }
+
+  .contact-subtitle {
+    font-size: 1rem;
+  }
+
+  .contact-grid-container {
+    flex-direction: row;
+    max-width: 1000px;
+    height: 100%; /* Spans grid to remaining height of section */
+    gap: 24px;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  .map-card-wrapper, 
+  .info-details-card {
+    flex: 1;
+    height: 100%; /* Limits items exactly to container dimensions */
+    border-radius: 16px;
+  }
+
+  .map-card-wrapper {
+    height: auto; 
+  }
+
+  .info-details-card {
+    padding: 24px;
+  }
+
+  .info-inner-content {
+    gap: 20px;
+  }
+
+  .info-text-block h4 {
+    font-size: 1.05rem;
+  }
+
+  .info-text-block p {
+    font-size: 0.9rem;
+  }
+
+  .btn-action:hover {
+    filter: brightness(0.95);
+  }
+}

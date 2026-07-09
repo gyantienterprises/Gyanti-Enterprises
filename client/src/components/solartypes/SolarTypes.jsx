@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './SolarTypes.css';
 
 import onGridImg from '../../assets/solar system types/on gird.png';
@@ -50,6 +50,30 @@ const solarData = [
 export default function SolarSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Synchronize active slide with incoming window hash URLs (e.g., #on-grid)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      const targetIndex = solarData.findIndex((item) => item.id === hash);
+      
+      if (targetIndex !== -1) {
+        setCurrentIndex(targetIndex);
+        
+        // Smoothly scroll the user to this slider section
+        const element = document.querySelector('.solar-slider-section');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+
+    // Run on initial mounting if user arrives with a trailing hash identifier
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev === solarData.length - 1 ? 0 : prev + 1));
   };
@@ -59,7 +83,7 @@ export default function SolarSlider() {
   };
 
   return (
-    <section className="solar-slider-section">
+    <section id='solar-system-types' className="solar-slider-section">
       
       {/* BRAND NEW MAIN SECTION HEADING */}
       <div className="solar-slider-header">
@@ -72,14 +96,13 @@ export default function SolarSlider() {
           
           {/* LEFT SWIPE BUTTON */}
           <button className="nav-arrow-btn left" onClick={prevSlide} aria-label="Previous">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
           </button>
 
           {/* ALL 3 CARDS RENDERED SIMULTANEOUSLY FOR 3D CENTER MECHANISM */}
           {solarData.map((card, index) => {
-            // Mapping CSS dynamic positioning relative classes
             let cardPositionClass = 'card-next';
             
             if (index === currentIndex) {
@@ -129,7 +152,7 @@ export default function SolarSlider() {
 
           {/* RIGHT SWIPE BUTTON */}
           <button className="nav-arrow-btn right" onClick={nextSlide} aria-label="Next">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>

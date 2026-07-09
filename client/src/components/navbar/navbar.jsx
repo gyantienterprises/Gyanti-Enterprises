@@ -39,9 +39,9 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Services", href: "/services" },
-    { name: "Admin", href: "/admin" },
+    { name: "Calculator", href: "#solar-calculator" },
+    { name: "Systems", href: "#solar-system-types" },
+    { name: "Contact", href: "#contactus" },
   ];
 
   return (
@@ -77,16 +77,10 @@ export default function Navbar() {
               {item.name}
             </a>
           ))}
-
-          <a
-            href="/contact"
-            className="bg-accent-primary hover:bg-accent-secondary text-black px-6 py-3 rounded-xl font-semibold transition"
-          >
-            Get Free Quote
-          </a>
+          {/* REMOVED: "Get Free Quote" button has been completely removed from desktop view */}
         </nav>
 
-        {/* Mobile Button */}
+        {/* Mobile Button (Hamburger Menu) */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden flex flex-col gap-1.5"
@@ -128,12 +122,15 @@ export default function Navbar() {
             </a>
           ))}
 
-          <a
-            href="/contact"
-            className="bg-accent-primary hover:bg-accent-secondary text-black text-center py-3 rounded-xl font-semibold transition"
+          {/* Mobile Only: WhatsApp Integration */}
+          {/* <a
+            href="https://wa.me/919076640155?text=Hello%20Gyanti%20Enterprises,%20I'm%20interested%20in%20a%20free%20quote."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white text-center py-3 rounded-xl font-semibold transition"
           >
-            Get Free Quote
-          </a>
+            WhatsApp Us
+          </a> */}
         </div>
       </div>
     </header>

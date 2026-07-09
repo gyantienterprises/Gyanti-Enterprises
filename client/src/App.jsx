@@ -4,6 +4,7 @@ import "./App.css";
 import Navbar from "./components/navbar/navbar.jsx";
 import Client from "./components/client/Client.jsx";
 import Admin from "./components/admin/Admin.jsx";
+import BottomBar from "./components/bottombar/BottomBar.jsx";
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
           {/* Admin Route */}
           <Route path="/admin" element={<Admin />} />
         </Routes>
+
+        <BottomBar/>
       </div>
     </Router>
   );

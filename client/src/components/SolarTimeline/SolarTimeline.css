@@ -1,0 +1,284 @@
+/* Color Palette Mapping for Dark Theme Zone */
+:root {
+  --color-brand-dark: #0b0b0f;
+  --color-brand-darker: #07070a;
+  
+  /* Dark mode variants */
+  --text-primary-dark: #f7f8fb;
+  --text-secondary-dark: #94a3b8;
+  --card-bg-dark: #13131a;
+
+  /* Accents */
+  --color-accent-primary: #ffb000;
+  --color-accent-secondary: #ff7a18;
+  --color-accent-green: #10b981;
+}
+
+/* Base Layout Container */
+.solar-timeline-section {
+  background-color: var(--color-brand-darker);
+  color: var(--text-primary-dark);
+  padding: 40px 16px; /* Reduced vertical padding for mobile */
+  font-family: system-ui, -apple-system, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timeline-header {
+  text-align: center;
+  margin-bottom: 32px; /* Tighter spacing for mobile */
+  max-width: 600px;
+}
+
+.timeline-main-title {
+  font-size: 1.8rem; /* Smaller scale on mobile */
+  font-weight: 700;
+  color: var(--text-primary-dark);
+  margin-bottom: 8px;
+}
+
+.timeline-subtitle {
+  color: var(--text-secondary-dark);
+  font-size: 0.95rem; /* Downscaled text size */
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   MOBILE DESIGN (Compact Stacked/Vertical Timeline)
+   ========================================================================== */
+.timeline-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* Reduced gap between steps */
+  width: 100%;
+  max-width: 380px; /* Constrained card width for compact flow */
+  padding-left: 48px; /* Tighter padding alignment */
+  box-sizing: border-box;
+}
+
+/* Vertical Line */
+.timeline-progress-line {
+  position: absolute;
+  left: 17px; /* Matches scaled down orb placement */
+  top: 8px;
+  bottom: 8px;
+  width: 3px; /* Slightly thinner line */
+  background: linear-gradient(to bottom, var(--color-accent-primary), var(--color-accent-secondary) 50%, var(--color-accent-green));
+  border-radius: 2px;
+}
+
+.timeline-card-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Mobile Orbs - Scaled down for mobile viewports */
+.timeline-orb {
+  position: absolute;
+  left: -48px;
+  top: 8px;
+  width: 36px;  /* Reduced from 46px */
+  height: 36px; /* Reduced from 46px */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 176, 0, 0.15);
+}
+
+.timeline-orb svg {
+  width: 16px;  /* Downscaled lucide icons */
+  height: 16px;
+}
+
+/* Dynamic Gradients */
+.timeline-orb.accent-primary { 
+  background: radial-gradient(circle at 35% 35%, #ffd473, var(--color-accent-primary)); 
+  color: #000;
+}
+.timeline-orb.accent-secondary { 
+  background: radial-gradient(circle at 35% 35%, #ffaa66, var(--color-accent-secondary)); 
+  box-shadow: 0 0 10px rgba(255, 122, 24, 0.15);
+  color: #000;
+}
+.timeline-orb.accent-green { 
+  background: radial-gradient(circle at 35% 35%, #5df0bd, var(--color-accent-green)); 
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+  color: #000;
+}
+
+.orb-icon-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-number {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: var(--color-brand-darker);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  font-size: 0.55rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile Cards - Scaled margins and text densities */
+.timeline-card {
+  background-color: var(--card-bg-dark);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px; /* Cleaner corners for compact cards */
+  padding: 16px; /* Reduced interior padding */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.time-tag {
+  display: inline-block;
+  font-size: 0.65rem; /* Highly readable minor details */
+  font-weight: 700;
+  color: var(--color-accent-secondary);
+  background-color: rgba(255, 122, 24, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 122, 24, 0.15);
+}
+
+.time-tag.tag-live {
+  color: var(--color-accent-green);
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+.card-title {
+  font-size: 1.05rem; /* Clean heading size for small UI breakpoints */
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 4px;
+  color: var(--text-primary-dark);
+}
+
+.card-description {
+  font-size: 0.85rem; /* Scaled down paragraph structure */
+  line-height: 1.4;
+  color: var(--text-secondary-dark);
+  margin: 0;
+}
+
+.live-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  color: var(--color-accent-green);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   DESKTOP DESIGN (Restores original Horizontal layout)
+   ========================================================================== */
+@media (min-width: 1024px) {
+  .solar-timeline-section {
+    padding: 60px 20px;
+  }
+
+  .timeline-main-title {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .timeline-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .timeline-container {
+    flex-direction: row;
+    max-width: 1200px;
+    padding-left: 0;
+    gap: 24px;
+    align-items: flex-start;
+    margin-top: 40px;
+  }
+
+  /* Horizontal Tracker Line Placement */
+  .timeline-progress-line {
+    left: 60px;
+    right: 60px;
+    top: 32px;
+    bottom: auto;
+    height: 4px;
+    width: auto;
+  }
+
+  .timeline-card-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Expand Desktop Orbs back up to original presentation proportions */
+  .timeline-orb {
+    position: relative;
+    left: auto;
+    top: 0;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 24px;
+    z-index: 2;
+  }
+
+  .timeline-orb svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .orb-number {
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    top: -2px;
+    right: -2px;
+  }
+
+  /* Card layouts configuration back to Desktop default */
+  .timeline-card {
+    width: 100%;
+    text-align: center;
+    min-height: 220px;
+    padding: 24px;
+    border-radius: 16px;
+  }
+
+  .time-tag {
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+  }
+
+  .card-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .live-status {
+    font-size: 0.85rem;
+    margin-top: 14px;
+  }
+}

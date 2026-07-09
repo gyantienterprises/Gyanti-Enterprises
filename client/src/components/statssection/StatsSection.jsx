@@ -96,7 +96,7 @@ const statsData = [
 
 export default function StatsSection() {
   return (
-    <section className="stats-container">
+    <section id='aboutus' className="stats-container">
       <div className="stats-grid">
         {statsData.map((stat, index) => (
           <div key={stat.id} className="stat-card-wrapper">

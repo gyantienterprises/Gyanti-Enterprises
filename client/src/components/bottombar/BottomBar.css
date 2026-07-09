@@ -1,0 +1,62 @@
+/* Sleeker, solid-white container */
+.mobile-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 52px; /* Reduced from 60px for a cleaner look */
+  background-color: #ffffff; /* Solid white background */
+  border-top: 1px solid var(--color-surface);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -4px 10px rgba(15, 23, 42, 0.04);
+  z-index: 9999;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Visibility states handled by JS */
+.mobile-bottom-bar.visible {
+  transform: translateY(0);
+}
+
+.mobile-bottom-bar.hidden {
+  transform: translateY(100%);
+}
+
+/* Structural item baseline */
+.bottom-bar-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  transition: opacity 0.2s ease;
+}
+
+.bottom-bar-item:active {
+  opacity: 0.6;
+}
+
+/* First and Last items sharing the identical theme secondary color */
+.bottom-bar-item.standard-item {
+  color: var(--color-text-secondary);
+}
+
+/* Center item featuring your orange accent primary color */
+.bottom-bar-item.accent-item {
+  color: var(--color-accent-primary);
+}
+
+/* --- Responsive Visibility Control --- */
+@media (min-width: 1025px) {
+  .mobile-bottom-bar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  body {
+    padding-bottom: 0px;
+  }
+}
