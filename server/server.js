@@ -15,7 +15,7 @@ app.use(express.json());
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
-  max: 10,                 // Maximum number of clients in the pool
+  max: 10, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
   connectionTimeoutMillis: 10000, // Maximum time to wait for a connection slot before timing out
 });
@@ -69,9 +69,9 @@ const notifyAllDevices = async (title, body, data = {}) => {
 const broadcastToWebAdmins = (leadData) => {
   const normalizedData = {
     ...leadData,
-    phone: leadData.contact
+    phone: leadData.contact,
   };
-  adminClients.forEach(client => {
+  adminClients.forEach((client) => {
     try {
       client.write(`data: ${JSON.stringify(normalizedData)}\n\n`);
     } catch (err) {
@@ -108,7 +108,7 @@ app.get("/api/admin/leads/stream", (req, res) => {
   adminClients.push(res);
 
   req.on("close", () => {
-    adminClients = adminClients.filter(client => client !== res);
+    adminClients = adminClients.filter((client) => client !== res);
   });
 });
 
@@ -126,11 +126,12 @@ app.post("/api/leads", async (req, res) => {
       [contact],
     );
     const isExisting = checkUser.rows.length > 0;
-    
-    const numericSavings = parseInt(String(moneySaved || 0).replace(/,/g, "")) || 0;
+
+    const numericSavings =
+      parseInt(String(moneySaved || 0).replace(/,/g, "")) || 0;
     const parsedMonthlyBill = parseInt(monthlyBill) || 0;
     const parsedKwNeeded = parseFloat(kwNeeded) || 0;
-   
+
     let result;
 
     if (isExisting) {
@@ -153,7 +154,6 @@ app.post("/api/leads", async (req, res) => {
         message: "Your consultation metrics have been successfully updated!",
         lead: result.rows[0],
       });
-
     } else {
       const insertQuery = `
         INSERT INTO solar_leads (name, contact, monthly_bill, kw_needed, money_saved)
@@ -179,11 +179,10 @@ app.post("/api/leads", async (req, res) => {
     notifyAllDevices(
       isExisting ? "Lead Updated" : "New Solar Lead! ☀️",
       `${name} — ₹${parsedMonthlyBill}/mo`,
-      { lead: freshLead }
-    ).catch(err => console.error("Notification thread error:", err));
+      { lead: freshLead },
+    ).catch((err) => console.error("Notification thread error:", err));
 
     broadcastToWebAdmins(freshLead);
-
   } catch (error) {
     console.error("Database Handling Error Details:", error);
     return res.status(500).json({ error: "Internal server database error." });
@@ -194,33 +193,36 @@ app.post("/api/leads", async (req, res) => {
 app.get("/api/admin/leads", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, name, contact as phone, monthly_bill, kw_needed, money_saved, created_at FROM solar_leads ORDER BY created_at DESC"
+      "SELECT id, name, contact as phone, monthly_bill, kw_needed, money_saved, created_at FROM solar_leads ORDER BY created_at DESC",
     );
     return res.status(200).json(result.rows);
   } catch (error) {
-    console.warn("Snake_case fetch failed, attempting camelCase fallback...", error.message);
-    
+    console.warn(
+      "Snake_case fetch failed, attempting camelCase fallback...",
+      error.message,
+    );
+
     try {
       const fallbackResult = await pool.query(
-        'SELECT id, name, contact as phone, "monthlyBill", "kwNeeded", "moneySaved", "createdAt" FROM solar_leads ORDER BY "createdAt" DESC'
+        'SELECT id, name, contact as phone, "monthlyBill", "kwNeeded", "moneySaved", "createdAt" FROM solar_leads ORDER BY "createdAt" DESC',
       );
-      
-      const normalizedRows = fallbackResult.rows.map(row => ({
+
+      const normalizedRows = fallbackResult.rows.map((row) => ({
         id: row.id,
         name: row.name,
         phone: row.phone,
         monthly_bill: row.monthlyBill,
         kw_needed: row.kwNeeded,
         money_saved: row.moneySaved,
-        created_at: row.createdAt
+        created_at: row.createdAt,
       }));
 
       return res.status(200).json(normalizedRows);
     } catch (fallbackError) {
       console.error("Both database schema styles failed:", fallbackError);
-      return res.status(500).json({ 
-        error: "Failed to fetch database records.", 
-        details: fallbackError.message 
+      return res.status(500).json({
+        error: "Failed to fetch database records.",
+        details: fallbackError.message,
       });
     }
   }
@@ -266,13 +268,22 @@ const initializeSchema = async () => {
     console.log("Neon database structures verified successfully.");
   } catch (err) {
     console.error("Schema sync note:", err.message);
+    throw err; // Forward error to the catch block inside the timer
   }
 };
 
 app.listen(PORT, async () => {
   console.log(`Solar backend operational on port ${PORT}`);
+
   // Give Neon a brief 1.5-second buffer to stabilize connections on boot
   setTimeout(async () => {
-    await initializeSchema();
+    try {
+      await initializeSchema();
+    } catch (err) {
+      console.error(
+        "Critical Failure: Database schema could not sync on start.",
+        err.message,
+      );
+    }
   }, 1500);
 });
