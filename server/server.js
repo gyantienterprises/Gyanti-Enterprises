@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const webpush = require("web-push");
 const { Pool } = require("pg");
 require("dotenv").config();
 
@@ -31,21 +30,6 @@ pool.on("error", (err, client) => {
 // --- IN-MEMORY REALTIME WEB DASHBOARD CLIENTS ---
 let adminClients = [];
 
-// --- WEB PUSH (VAPID) SETUP ---
-// Generate a keypair once with: npx web-push generate-vapid-keys
-// Then set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_SUBJECT in your env.
-if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || "mailto:admin@example.com",
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY,
-  );
-} else {
-  console.warn(
-    "VAPID keys are not set. Push notifications will not be sent until VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY are configured.",
-  );
-}
-
 // --- DEPLOYMENT HEALTH CHECK ---
 app.get("/health", async (req, res) => {
   try {
@@ -65,44 +49,41 @@ app.get("/health", async (req, res) => {
   }
 });
 
-// --- PUSH NOTIFICATION HELPERS (real Web Push, not Expo) ---
-const sendPushNotification = async (subscription, title, body, data = {}) => {
-  const payload = JSON.stringify({ title, body, data });
+// --- PUSH NOTIFICATION HELPERS ---
+const sendPushNotification = async (expoPushToken, title, body, data = {}) => {
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title,
+    body,
+    data,
+  };
 
   try {
-    await webpush.sendNotification(subscription, payload);
-  } catch (error) {
-    // 404/410 = the subscription is dead (user revoked permission, uninstalled, etc.)
-    if (error.statusCode === 404 || error.statusCode === 410) {
-      console.log("Removing expired push subscription:", subscription.endpoint);
-      await pool
-        .query("DELETE FROM push_subscriptions WHERE endpoint = $1", [
-          subscription.endpoint,
-        ])
-        .catch((e) =>
-          console.error("Failed to clean up dead subscription:", e.message),
-        );
-    } else {
-      console.error("Error sending push notification:", error.message);
+    const response = await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
+    });
+    const result = await response.json();
+    if (result.data && result.data.status === "error") {
+      console.warn("Expo Push Error:", result.data);
     }
+  } catch (error) {
+    console.error(`Error sending push notification to ${expoPushToken}:`, error.message);
   }
 };
 
 const notifyAllDevices = async (title, body, data = {}) => {
   try {
-    const result = await pool.query(
-      "SELECT endpoint, p256dh, auth FROM push_subscriptions",
-    );
+    const result = await pool.query("SELECT token FROM device_tokens");
+    // Run push notifications concurrently so it doesn't block the thread for large tables
     const pushPromises = result.rows.map((row) =>
-      sendPushNotification(
-        {
-          endpoint: row.endpoint,
-          keys: { p256dh: row.p256dh, auth: row.auth },
-        },
-        title,
-        body,
-        data,
-      ),
+      sendPushNotification(row.token, title, body, data)
     );
     await Promise.allSettled(pushPromises);
   } catch (error) {
@@ -110,16 +91,16 @@ const notifyAllDevices = async (title, body, data = {}) => {
   }
 };
 
-// --- REALTIME WEB BROADCAST HELPER (for the dashboard tab, while open) ---
+// --- REALTIME WEB BROADCAST HELPER ---
 const broadcastToWebAdmins = (leadData) => {
   const normalizedData = {
     ...leadData,
     phone: leadData.contact,
   };
-
+  
   // Clean up dead clients before broadcasting
   adminClients = adminClients.filter((client) => client.writable);
-
+  
   adminClients.forEach((client) => {
     try {
       client.write(`data: ${JSON.stringify(normalizedData)}\n\n`);
@@ -129,41 +110,26 @@ const broadcastToWebAdmins = (leadData) => {
   });
 };
 
-// --- EXPOSE PUBLIC VAPID KEY TO THE FRONTEND ---
-app.get("/api/vapid-public-key", (req, res) => {
-  if (!process.env.VAPID_PUBLIC_KEY) {
-    return res
-      .status(503)
-      .json({ error: "Push notifications are not configured." });
-  }
-  return res.status(200).json({ publicKey: process.env.VAPID_PUBLIC_KEY });
-});
-
-// --- DEVICE (PUSH SUBSCRIPTION) REGISTRATION ---
+// --- DEVICE REGISTRATION ---
 app.post("/api/register-device", async (req, res) => {
-  const { endpoint, keys } = req.body || {};
-
-  if (!endpoint || !keys || !keys.p256dh || !keys.auth) {
-    return res
-      .status(400)
-      .json({ error: "A valid push subscription is required." });
+  const { token } = req.body;
+  if (!token || typeof token !== "string") {
+    return res.status(400).json({ error: "Valid push token is required." });
   }
-
+  
   try {
     await pool.query(
-      `INSERT INTO push_subscriptions (endpoint, p256dh, auth)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (endpoint) DO UPDATE SET p256dh = $2, auth = $3`,
-      [endpoint, keys.p256dh, keys.auth],
+      "INSERT INTO device_tokens (token) VALUES ($1) ON CONFLICT (token) DO NOTHING",
+      [token]
     );
     return res.status(200).json({ success: true });
   } catch (error) {
-    console.error("Error saving push subscription:", error.message);
-    return res.status(500).json({ error: "Failed to save push subscription." });
+    console.error("Error saving device token:", error.message);
+    return res.status(500).json({ error: "Failed to save device token." });
   }
 });
 
-// --- REALTIME SSE STREAM (for the dashboard tab, while open) ---
+// --- REALTIME SSE STREAM ---
 app.get("/api/admin/leads/stream", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -189,25 +155,15 @@ app.post("/api/leads", async (req, res) => {
   // 2. Data sanitation and safe parsing
   const parsedMonthlyBill = parseInt(monthlyBill, 10);
   const parsedKwNeeded = parseFloat(kwNeeded) || 0;
-  const numericSavings =
-    parseInt(String(moneySaved || 0).replace(/,/g, ""), 10) || 0;
+  const numericSavings = parseInt(String(moneySaved || 0).replace(/,/g, ""), 10) || 0;
 
   // 3. Strict limits to prevent Database Integer Overflows (The 500 error fix)
-  if (
-    isNaN(parsedMonthlyBill) ||
-    parsedMonthlyBill < 0 ||
-    parsedMonthlyBill > 9999999
-  ) {
-    return res
-      .status(400)
-      .json({ error: "Invalid monthly bill amount provided." });
+  if (isNaN(parsedMonthlyBill) || parsedMonthlyBill < 0 || parsedMonthlyBill > 9999999) {
+    return res.status(400).json({ error: "Invalid monthly bill amount provided." });
   }
 
   try {
-    const checkUser = await pool.query(
-      "SELECT id FROM solar_leads WHERE contact = $1",
-      [contact],
-    );
+    const checkUser = await pool.query("SELECT id FROM solar_leads WHERE contact = $1", [contact]);
     const isExisting = checkUser.rows.length > 0;
 
     let result;
@@ -255,14 +211,15 @@ app.post("/api/leads", async (req, res) => {
 
     // Trigger async processes without blocking the client response
     const freshLead = result.rows[0];
-
+    
     notifyAllDevices(
       isExisting ? "Lead Updated" : "New Solar Lead! ☀️",
       `${name} — ₹${parsedMonthlyBill}/mo`,
-      { lead: freshLead },
+      { lead: freshLead }
     ).catch((err) => console.error("Notification thread error:", err.message));
 
     broadcastToWebAdmins(freshLead);
+    
   } catch (error) {
     console.error("Database Handling Error:", error.message);
     return res.status(500).json({ error: "Internal server processing error." });
@@ -273,17 +230,14 @@ app.post("/api/leads", async (req, res) => {
 app.get("/api/admin/leads", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, name, contact as phone, monthly_bill, kw_needed, money_saved, created_at FROM solar_leads ORDER BY created_at DESC",
+      "SELECT id, name, contact as phone, monthly_bill, kw_needed, money_saved, created_at FROM solar_leads ORDER BY created_at DESC"
     );
     return res.status(200).json(result.rows);
   } catch (error) {
-    console.warn(
-      "Snake_case fetch failed, attempting camelCase fallback...",
-      error.message,
-    );
+    console.warn("Snake_case fetch failed, attempting camelCase fallback...", error.message);
     try {
       const fallbackResult = await pool.query(
-        'SELECT id, name, contact as phone, "monthlyBill", "kwNeeded", "moneySaved", "createdAt" FROM solar_leads ORDER BY "createdAt" DESC',
+        'SELECT id, name, contact as phone, "monthlyBill", "kwNeeded", "moneySaved", "createdAt" FROM solar_leads ORDER BY "createdAt" DESC'
       );
 
       const normalizedRows = fallbackResult.rows.map((row) => ({
@@ -299,16 +253,14 @@ app.get("/api/admin/leads", async (req, res) => {
       return res.status(200).json(normalizedRows);
     } catch (fallbackError) {
       console.error("Database fetch failed:", fallbackError.message);
-      return res
-        .status(500)
-        .json({ error: "Failed to fetch database records." });
+      return res.status(500).json({ error: "Failed to fetch database records." });
     }
   }
 });
 
 app.delete("/api/admin/leads/:id", async (req, res) => {
   const { id } = req.params;
-
+  
   if (isNaN(parseInt(id, 10))) {
     return res.status(400).json({ error: "Invalid ID format." });
   }
@@ -320,9 +272,7 @@ app.delete("/api/admin/leads/:id", async (req, res) => {
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Record not found." });
     }
-    return res
-      .status(200)
-      .json({ success: true, message: "Lead successfully removed." });
+    return res.status(200).json({ success: true, message: "Lead successfully removed." });
   } catch (error) {
     console.error("Error deleting entry:", error.message);
     return res.status(500).json({ error: "Failed to delete database record." });
@@ -343,22 +293,15 @@ const initializeSchema = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-
-    // Real Web Push subscriptions (replaces the old Expo device_tokens table,
-    // which never worked for a browser/PWA client).
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS push_subscriptions (
-        endpoint TEXT PRIMARY KEY,
-        p256dh TEXT NOT NULL,
-        auth TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      CREATE TABLE IF NOT EXISTS device_tokens (
+        token TEXT PRIMARY KEY
       );
     `);
-
     console.log("Neon database structures verified successfully.");
   } catch (err) {
     console.error("Critical Schema sync error:", err.message);
-    throw err;
+    throw err; 
   }
 };
 
@@ -367,7 +310,7 @@ const startServer = async () => {
   try {
     // 1. Ensure the DB is ready BEFORE accepting requests
     await initializeSchema();
-
+    
     // 2. Start the Express server
     const server = app.listen(PORT, () => {
       console.log(`Solar backend operational on port ${PORT}`);
@@ -384,6 +327,7 @@ const startServer = async () => {
 
     process.on("SIGTERM", gracefulShutdown);
     process.on("SIGINT", gracefulShutdown);
+
   } catch (error) {
     console.error("Failed to start server:", error.message);
     process.exit(1);
