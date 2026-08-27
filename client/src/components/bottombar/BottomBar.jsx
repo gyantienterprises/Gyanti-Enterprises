@@ -6,7 +6,7 @@ const BottomBar = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  const phoneNumber = "9076640155";
+  const phoneNumber = "9235740155";
   const whatsappMessage = encodeURIComponent("Hello! I am interested in your solar services.");
 
   useEffect(() => {
