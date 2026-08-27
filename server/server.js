@@ -12,6 +12,14 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// --- ROOT ROUTE ---
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Gyanti Enterprises API is running 🚀",
+  });
+});
+
 // --- OPTIMIZED NEON CONNECTION POOL ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
