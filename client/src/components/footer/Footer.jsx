@@ -71,11 +71,11 @@ const Footer = () => {
           <ul className="contact-list">
             <li>
               <FaPhoneAlt className="contact-icon" />
-              <a href="tel:+919076640155">+91-90766 40155</a>
+              <a href="tel:+919235740155">+91-92357 40155</a>
             </li>
             <li>
               <FaPhoneAlt className="contact-icon" />
-              <a href="tel:+918115621040">+91-81156 21040</a>
+              <a href="tel:+919076640155">+91-90766 40155</a>
             </li>
             <li>
               <FaEnvelope className="contact-icon" />
@@ -86,8 +86,7 @@ const Footer = () => {
             <li>
               <FaMapMarkerAlt className="contact-icon alignment-top" />
               <span>
-                Gyanti Enterprises, Gautam Buddha Marg, Near Baroda U.P. Bank,
-                Rajrooppur, Prayagraj, 211011
+                14521e/1452, Pipal Gaon, IIT Chauraha, Prayagraj, Uttar Pradesh 211015, India.
               </span>
             </li>
           </ul>
