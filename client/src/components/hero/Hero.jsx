@@ -2,6 +2,14 @@ import React from "react";
 import HeroImage from "../../assets/Hero.jpg";
 
 const Hero = () => {
+  // Smooth scroll handler helper
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div
       className="relative h-screen w-full flex items-center justify-center bg-cover bg-[right_35%_center] md:bg-center"
@@ -25,13 +33,19 @@ const Hero = () => {
           Gyan Badhaen, Solar Lagwaen
         </p>
 
-        {/* Button Container Fix */}
+        {/* Button Container */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button className="w-full sm:w-auto bg-accent-primary hover:bg-accent-secondary text-black font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg tracking-wide transform hover:scale-105">
+          <button
+            onClick={() => scrollToSection("contactus")}
+            className="w-full sm:w-auto bg-accent-primary hover:bg-accent-secondary text-black font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg tracking-wide transform hover:scale-105 cursor-pointer"
+          >
             Contact Now
           </button>
-          
-          <button className="w-full sm:w-auto bg-transparent border-2 border-accent-primary hover:bg-accent-primary text-accent-primary hover:text-black font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg tracking-wide transform hover:scale-105">
+
+          <button
+            onClick={() => scrollToSection("solar-calculator")}
+            className="w-full sm:w-auto bg-transparent border-2 border-accent-primary hover:bg-accent-primary text-accent-primary hover:text-black font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg tracking-wide transform hover:scale-105 cursor-pointer"
+          >
             Calculate your capacity
           </button>
         </div>
