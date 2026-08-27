@@ -14,10 +14,8 @@ const SolarCalculator = () => {
   // Modal & Error States
   const [showModal, setShowModal] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
-  const [billErrorMessage, setBillErrorMessage] = useState(""); // Track bill specific validation
+  const [billErrorMessage, setBillErrorMessage] = useState(""); 
   const [successMessage, setSuccessMessage] = useState("");
-
-  const backend = import.meta.env.VITE_BACKEND;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -48,7 +46,7 @@ const SolarCalculator = () => {
     // 1. Minimum bill restriction
     if (bill < 1500) {
       setBillErrorMessage(
-        "Minimum monthly bill requirement for solar setup is ₹1,500.",
+        "Minimum monthly bill requirement for solar setup is ₹1,500."
       );
       setResults(null);
       return;
@@ -56,7 +54,7 @@ const SolarCalculator = () => {
 
     // 2. Market Standard Coefficients
     const BLENDED_TARIFF = 7; // Average cost per unit in ₹
-    const DAILY_GEN_PER_KW = 4; // Real-world adjusted generation (Accounting for dust/weather losses)
+    const DAILY_GEN_PER_KW = 4; // Real-world adjusted generation
     const DAYS_IN_MONTH = 30;
 
     // Step A: Find monthly unit consumption
@@ -95,7 +93,10 @@ const SolarCalculator = () => {
     };
 
     try {
-      const response = await fetch(backend, {
+      // Strips any trailing slashes to prevent `//api/leads` routing errors
+      const baseUrl = (import.meta.env.VITE_BACKEND || "").replace(/\/$/, "");
+      
+      const response = await fetch(`${baseUrl}/api/leads`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +116,7 @@ const SolarCalculator = () => {
     } catch (error) {
       console.error("Connection Error:", error);
       alert(
-        "Unable to reach the server. Make sure your backend server is running.",
+        "Unable to reach the server. Make sure your backend server is running."
       );
     }
   };
